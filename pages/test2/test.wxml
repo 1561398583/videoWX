@@ -1,0 +1,4 @@
+<video class="videoItem" bindtimeupdate="bindtimeupdate" id="kdvideo" bindtouchstart="touchStart" bindtouchend="touchEnd" bindtouchcancel="touchCancel"  binderror="binderror" autoplay="{{autoplay}}" objectFit="cover" hidden="{{animationShow}}" src=" https://www.xiaoyxiao.cn/assets/videos/OKrWmEASlx07FjWs8vsc0104120021ZH0E010.mp4" bindplay="bindplay" controls="true" loop="">
+
+    >
+</video>

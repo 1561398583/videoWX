@@ -1,0 +1,50 @@
+<swiper
+class="videoSwiper"
+vertical="true"
+bindchange="finishVideoChange"
+duration="200"
+circular="true"
+>
+    <swiper-item class="videoSwiperItem">
+      <video 
+      class="videoItem" 
+       id="video_0"  
+       autoplay="{{}}" 
+       objectFit="cover" 
+       hidden="{{animationShow}}" 
+       src="{{videos[0].VideoUrl}}" 
+      controls="{{true}}"
+      loop=""
+      >
+      </video>
+    </swiper-item>
+
+    <swiper-item class="videoSwiperItem">
+      <video 
+      class="videoItem" 
+       id="video_1"  
+       autoplay="{{}}" 
+       objectFit="cover" 
+       hidden="{{animationShow}}" 
+       src="{{videos[1].VideoUrl}}" 
+      controls="{{true}}"
+      loop=""
+      >
+      </video>
+    </swiper-item>
+
+    <swiper-item class="videoSwiperItem">
+      <video 
+      class="videoItem" 
+       id="video_2"  
+       autoplay="{{}}" 
+       objectFit="cover" 
+       hidden="{{animationShow}}" 
+       src="{{videos[2].VideoUrl}}" 
+      controls="{{true}}"
+      loop=""
+      >
+      </video>
+    </swiper-item>
+</swiper>
+
