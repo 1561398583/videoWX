@@ -1,6 +1,6 @@
 {
   "pages":[
-    "pages/test/index",
+    "pages/commentTest/index",
     "pages/logs/logs"
   ],
   "window":{

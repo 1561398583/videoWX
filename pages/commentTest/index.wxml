@@ -1,0 +1,37 @@
+ <!-- 评论区  -->
+    <view class='talks'>
+      <!-- 评论头部  -->
+      <view class='talk-header' catchtap='hideTalks'>
+        <view class='talk-count'>100 条评论</view>
+        <image src='/assets/image/close.png' class='talk-close'></image>
+      </view>
+      <view class='talk-footer'>
+        <input class='talk-input' value="{{inputValue}}" bindinput ="contentInput"  bindconfirm='addComment' type='text' placeholder='说点什么吧…'></input>
+      </view>
+      <!-- 评论体  -->
+      <scroll-view class='talk-body' scroll-y="true" bindscrolltolower="onScrollLoad">
+        <view class='talk-item' wx:for="{{commentList}}" wx:key="index">
+          <view class='talk-item-left'>
+            <image class='talk-item-face' src='/assets/image/userImage.png'></image>
+          </view>
+          <view class='talk-item-center'>
+            <text class='talk-item-nickname'>{{item.UserName}}</text>
+            <text class='talk-item-content'>{{item.Comment}}</text>
+            <text class='talk-item-time'>{{item.CreatedAt}}</text>
+          </view>
+          <view class='talk-item-right' bindtap="commentLike" data-index='{{index}}'>
+            <image class='talk-item-face' 
+            id="comment_{{index}}"
+            src="{{item.likeImg}}"></image>
+            <text class='talk-item-time'>{{item.likeNum}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="noMoreComment" wx:if='{{noMoreData}}'>
+        <text class='talk-item-time'>暂无更多数据</text>
+      </view>
+      
+      <!-- 评论底部  -->
+    </view>
+ 
+  
