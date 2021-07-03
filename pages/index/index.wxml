@@ -1,16 +1,16 @@
-<view wx:for="{{videoList}}" wx:key="unique" class="item-container">  
+<view class='videoInfos'>
 
+  <block wx:for="{{videoList}}" wx:key="unique">  
 
-    <view style='width:{{screenWidth}}px;height:210px;' class='back-img'> 
-      <image src="{{item.PicUrl}}" style='width:{{screenWidth}}px;height:210px;' mode="aspectFit" bindtap='showVideoInfo' data-arrindex='{{index}}'></image>
-    </view> 
-
-    <view class="desc">
-      <view class="faceName">
-          <image class='myface' src="../../assets/image/like.png"></image>
-          <view class="nickname">{{item.LikeNum}}</view>
-      </view>
+    <view class="videoInfo">
+      
+        <image src="{{item.PicUrl}}"  mode="aspectFill" class="videoImg" bindtap='showVideoInfo' data-arrindex='{{index}}'></image>
+     
+     
+        <text class="videoTitle">{{item.VideoTitle}}</text>
+     
     </view>
+  
+  </block>
 
-
-</view>  
+</view>

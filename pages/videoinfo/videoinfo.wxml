@@ -1,13 +1,13 @@
 <view style='width:100%;height:100%;'>
 
   <video src="{{src}}"
-        muted="{{true}}"
+        muted="{{false}}"
         controls="{{false}}"
         autoplay="{{true}}"
         loop="{{false}}"
         enable-progress-gesture="{{false}}"
         style='width:100%;height:100%;'
-        objectFit="{{cover}}"
+        objectFit="contain"
         >
 
     <!-- 右边的按钮 -->
