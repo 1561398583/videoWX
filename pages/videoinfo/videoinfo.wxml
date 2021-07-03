@@ -20,7 +20,7 @@
 
        <!-- 评论按钮 -->
        <cover-view>
-          <cover-image  src='../../assets/image/comments.png' class="icon right-icon" bindtap='leaveComment'></cover-image>
+          <cover-image  src='../../assets/image/comments.png' class="icon right-icon" bindtap='showTalks'></cover-image>
           <cover-view class="text">{{commentNum}}</cover-view>
        </cover-view>
        
@@ -44,39 +44,40 @@
 
 </view>
 
-<view>
-
-  <view class="saySthView">
-  <input name="commentContent" class="saySth" placeholder="{{placeholder}}" confirm-type="send" bindconfirm="saveComment" focus='{{commentFocus}}' value='{{contentValue}}'
-  data-replyFatherCommentId='{{replyFatherCommentId}}'
-  data-replyToUserId='{{replyToUserId}}'
-  />
-  </view>
-
-  <block wx:for="{{commentsList}}" wx:key="key">
-    <view class='comments-all' bindtap='replyFocus' 
-    data-fatherCommentId='{{item.id}}'  
-    data-toUserId='{{item.fromUserId}}' 
-    data-toNickname='{{item.nickname}}' 
-    >
-        <view class='container-comments'>
-            <image class="face-comments" src='{{serverUrl}}{{item.faceImage}}' ></image>
-            <view class='nickname-comments'>
-                <label class='nickname-lbl'>@{{item.nickname}}</label>
-                于 
-                <label class='date-lbl'>{{item.timeAgoStr}}</label>
-                <!-- 留言： -->
-                <block wx:if="{{item.toNickname != null}}">
-                  回复
-                  <label class='nickname-lbl'>@{{item.toNickname}}</label>
-                </block>
-                <block wx:else>
-                  留言：
-                </block>
-            </view>
+<!-- 评论区  -->
+<view class='talks' style="display:{{talksDisplay}}">
+      <!-- 评论头部  -->
+      <view class='talk-header' catchtap='hideTalks'>
+        <view class='talk-count'>精彩评论</view>
+        <image src='/assets/image/close.png' class='talk-close'></image>
+      </view>
+      <view class='talk-footer'>
+        <input class='talk-input' value="{{inputValue}}" bindinput ="contentInput"  bindconfirm='addComment' type='text' placeholder="说点什么..."></input>
+      </view>
+      <!-- 评论体  -->
+      <scroll-view class='talk-body' scroll-y="true" bindscrolltolower="onScrollLoad">
+        <view class='talk-item' wx:for="{{commentList}}" wx:key="index">
+          <view class='talk-item-left'>
+            <image class='talk-item-face' src="{{item.UserFaceImg}}"></image>
+          </view>
+          <view class='talk-item-center'>
+            <text class='talk-item-nickname'>{{item.UserName}}</text>
+            <view class='talk-item-content'>{{item.Comment}}</view>
+            <!--<text class='talk-item-time'>{{item.CreatedAt}}</text>-->
+          </view>
+          <view class='talk-item-right' bindtap="commentLike" data-index='{{index}}'>
+            <image class='talk-item-face' 
+            id="comment_{{index}}"
+            src="{{item.LikeImg}}"></image>
+            <text class='talk-item-time'>{{item.LikeNum}}</text>
+          </view>
         </view>
-        <view class='comments-content'>{{item.comment}}</view>
-    </view>
-  </block> 
-
+      </scroll-view>
+      <view class="noMoreComment" wx:if='{{noMoreData}}'>
+        <text class='talk-item-time'>暂无更多数据</text>
+      </view>
+      
+      <!-- 评论底部  -->
 </view>
+ 
+  

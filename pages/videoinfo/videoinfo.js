@@ -16,15 +16,20 @@ Page({
 
         likeNum : 0,
 
-        commentNum : 0,
-
         userLikeVideo: false, // 用户视频喜欢该视频
 
-        commentsPage: 1, // 当前评论页面
-        commentsTotalPage: 1, // 评论总页数
-        commentsList: [], // 评论列表
+        talksDisplay : 'none',
 
-        placeholder: '说点什么…' // 输入框提示信息
+        isTalksInit : false,
+
+        commentList: [],    // 评论列表
+
+        noMoreComment : false,
+        inputValue : '',
+        commentNum : 0,
+        getCommentNum : 0,
+        videoId : '4549895140939768',
+        userId : '0',
     },
     // 视频播放组件
     videoCtx: {},
@@ -38,7 +43,7 @@ Page({
         // 获取上一个页面传入的参数
         var videoInfo = JSON.parse(params.videoInfo);
 
-        //console.log(videoInfo);
+        console.log(videoInfo);
 
         var likePicPath = '';
 
@@ -59,6 +64,7 @@ Page({
             likePic : likePicPath,
             videoId : videoInfo.ID,
             videoTitle : videoInfo.VideoTitle,
+            userId : app.OpenId,
         });
 
         //const serverUrl = app.serverUrl;
@@ -80,30 +86,6 @@ Page({
         that.videoCtx.pause();
     },
    
-    // 展示视频发布者信息
-    showPublisher: function () {
-        const that = this;
-
-        // 获取全局用户信息
-        const userInfo = app.getGlobalUserInfo();
-
-        // 视频信息
-        const videoInfo = that.data.videoInfo;
-        // 真实发布地址
-        const realUrl = '../mine/mine#publisherId@' + videoInfo.userId;
-
-        if (!userInfo) {
-            // 没有全局用户信息时跳转到登录页
-            wx.navigateTo({
-                url: '../userLogin/login?redirectUrl=' + realUrl
-            });
-        } else {
-            // 已登录时，跳转到我的页面，展示发布者信息
-            wx.navigateTo({
-                url: '../mine/mine?publisherId=' + videoInfo.userId
-            });
-        }
-    },
     
     // 返回到首页
     showIndex: function () {
@@ -263,127 +245,173 @@ Page({
             path: "pages/videoinfo/videoinfo?videoInfo=" + JSON.stringify(videoInfo)
         }
     },
-    // 评论按钮点击事件
-    leaveComment: function () {
-        // 设置让评论输入框获取焦点
-        this.setData({
-            commentFocus: true
+    
+
+    /**
+     *  评论部分
+     */
+    showTalks : function() {
+        let that = this;
+        that.setData({
+            talksDisplay : "block"
         });
-    },
-    // 回复评论
-    replyFocus: function (e) {
-        // 父评论id
-        const fatherCommentId = e.currentTarget.dataset.fathercommentid;
-        // 被评论者id
-        const toUserId = e.currentTarget.dataset.touserid;
-        // 被评论者昵称
-        const toNickname = e.currentTarget.dataset.tonickname;
-
-        this.setData({
-            placeholder: '回复 ' + toNickname,
-            replyFatherCommentId: fatherCommentId,
-            replyToUserId: toUserId,
-            commentFocus: true // 聚焦到对话框
-        });
-    },
-    // 保存用户评论
-    saveComment: function (e) {
-        const that = this;
-
-        // 获取用户输入的评论
-        const content = e.detail.value;
-
-        // 获取评论恢复的fatherCommentId（父评论的id）和toUserId（被评论者的id）
-        const fatherCommentId = e.currentTarget.dataset.replyfathercommentid;
-        const toUserId = e.currentTarget.dataset.replytouserid;
-
-        // 获取全局用户信息
-        const userInfo = app.getGlobalUserInfo();
-        const videoInfo = JSON.stringify(that.data.videoInfo);
-        const realUrl = '../videoinfo/videoinfo#videoInfo@' + videoInfo;
-
-        if (!userInfo) {
-            // 未登录时跳转到登录页
-            wx.navigateTo({
-                url: '../userLogin/login?redirectUrl=' + realUrl
-            });
-        } else {
-            // 已登录时，保存评论内容
-            wx.showLoading({
-                title: '请稍候…'
-            });
-
-            wx.request({
-                url: `${app.serverUrl}/video/saveComment?fatherCommentId=${fatherCommentId}&toUserId=${toUserId}`,
-                method: "POST",
-                header: {
-                    'content-type': 'application/json', // 默认值
-                    'headerUserId': userInfo.id,
-                    'headerUserToken': userInfo.userToken
-                },
-                data: {
-                    fromUserId: userInfo.id, // 当前用户id
-                    videoId: that.data.videoInfo.id, // 视频id
-                    comment: content // 评论内容
-                },
-                success(res) {
-                    console.log(res.data);
-                    wx.hideLoading(); // 隐藏进度加载框
-
-                    // 清空输入框的内容和评论列表
-                    that.setData({
-                        contentValue: '',
-                        commentsList: []
-                    });
-
-                    // 请求第一页的评论列表
-                    that.getCommentsList(1);
-                }
-            })
+        if (that.data.isTalksInit == false) {
+            that.getComments();
+            that.data.isTalksInit = true;
         }
     },
-    // 获取评论列表
-    getCommentsList: function (page) {
-        const that = this;
 
-        // 视频id
-        const videoId = that.data.videoInfo.id;
+    hideTalks : function(){
+        this.setData({
+            talksDisplay : "none"
+        });
+    },
 
+    getComments : function(){
+        let that = this;
+        let serverUrl = app.serverUrl;
+        if(that.data.noMoreComment == true){
+          wx.showToast({
+            title: '没有更多评论了',
+            icon: 'none',
+            duration: 2000
+          })
+          return
+        }else{
+          wx.showLoading({
+            title: '加载评论...',
+          })
+        }
+        
         wx.request({
-            url: `${app.serverUrl}/video/getVideoComments?videoId=${videoId}&page=${page}&pageSize=5`,
-            method: "POST",
-            success(res) {
-                console.log(res);
-
-                // 获取请求的评论列表
-                const commentsList = res.data.data.rows;
-                const oldCommentsList = that.data.commentsList;
-
-                // 合并评论列表
-                that.setData({
-                    commentsList: oldCommentsList.concat(commentsList),
-                    commentsPage: page,
-                    commentsTotalPage: res.data.data.total
-                })
+          method : 'GET',
+          url: serverUrl + "/getLevel1Comments",
+          data : {
+            videoId : that.data.videoId,
+            userId : that.data.userId,
+            num : that.data.getCommentNum,
+          },
+          success(res) {
+            wx.hideLoading();
+            console.log(res);
+            let data = res.data;
+            if(data.length < 10){
+              that.data.noMoreComment = true;
             }
-        })
-    },
-    // 滑动到页面底部
-    onReachBottom: function () {
-        const that = this;
-
-        // 当前页数
-        const currentPage = that.data.commentsPage;
-        // 总页数
-        const totalPage = that.data.commentsTotalPage;
-
-        // 到达最后一页
-        if (currentPage === totalPage) {
-            return;
+            for(let i = 0; i < data.length; i++){
+              if(data[i].IsLike == true) {
+                data[i].LikeImg = '/assets/image/like.png'
+              }else{
+                data[i].LikeImg = '/assets/image/unlike.png'
+              }
+            }
+            //console.log('after');
+            //console.log(data);
+            that.data.commentList = that.data.commentList.concat(data);
+            that.data.getCommentNum = that.data.getCommentNum + data.length;
+            //更新视图层
+            that.setData({
+              commentList : that.data.commentList,
+            });
+          }
+        });
+      },
+    
+      commentLike: function(e) {
+        let that = this;
+        let index = e.currentTarget.dataset.index;
+        let likeImg = this.data.commentList[index].LikeImg;
+        let userId = app.OpenId;
+        let commentId = this.data.commentList[index].ID;
+        let url = '';
+       
+        /*
+        修改likeImg\likeNum
+        */
+        //更改逻辑层数据
+        if (likeImg == "/assets/image/like.png"){
+          that.data.commentList[index].LikeImg = "/assets/image/unlike.png";
+          that.data.commentList[index].LikeNum = that.data.commentList[index].LikeNum - 1;
+          url = app.serverUrl + '/deleteUserLikeComment';
+        }else{
+          that.data.commentList[index].LikeImg = "/assets/image/like.png";
+          that.data.commentList[index].LikeNum = that.data.commentList[index].LikeNum + 1;
+          url = app.serverUrl + '/addUserLikeComment';
         }
-
-        // 请求下一页的数据
-        const page = currentPage + 1;
-        that.getCommentsList(page);
-    }
+        //将逻辑层数据赋值给视图层
+        that.setData({
+          commentList: that.data.commentList
+        });
+    
+        //向服务器发送修改信息
+        wx.request({
+          method : 'GET',
+          url: url,
+          data : {
+            userId : userId,
+            commentId : commentId,
+          },
+          success(res) {
+    
+          }
+        })
+    
+      },
+    
+      addComment : function(e){
+        let that = this;
+        let cont = e.detail.value;
+        console.log(app.OpenId);
+        wx.request({
+          method : 'POST',
+          url: app.serverUrl + "/addL1Comment", 
+          header: {
+            'content-type': 'application/x-www-form-urlencoded'
+          },
+          data: {
+            videoId: that.data.videoId,
+            uid: app.OpenId,
+            content : cont
+          },
+          
+          success (res) {
+            console.log(res.data);
+            let d = res.data;
+    
+            d.LikeImg = '/assets/image/unlike.png';
+           
+            that.data.commentList = that.data.commentList.concat(d);
+            that.setData({
+              commentList : that.data.commentList,
+            });
+          }
+        })
+    
+    
+        wx.showToast({
+          title: '评论成功',
+          icon: 'success',
+          duration: 2000
+        })
+       
+        //清空框中的值
+        that.setData({
+          inputValue : '',
+        });
+        
+      },
+    
+      onScrollLoad: function(){
+        let that = this;
+        if (that.data.noMoreComment == true){
+          wx.showToast({
+            title: '没有更多评论了',
+            icon: 'none',
+            duration: 2000
+          })
+        }else{
+          that.getComments();
+        }
+        }
+      
 });
