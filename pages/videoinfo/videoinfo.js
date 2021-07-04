@@ -93,23 +93,14 @@ Page({
           delta: 1,
         })
     },
-    // 显示我的页面
-    showMine: function () {
-        // 获取全局用户信息
-        const userInfo = app.getGlobalUserInfo();
-
-        if (!userInfo) {
-            // 未登录时跳转到登录页
-            wx.navigateTo({
-                url: '../userLogin/login'
-            });
-        } else {
-            // 已登录时，跳转到我的页面
-            wx.navigateTo({
-                url: '../mine/mine'
-            })
-        }
+    // 显示我喜欢的视频页面
+    showMine: function () {   
+        wx.navigateTo({
+            url: '../myLike/index'
+        })
+       
     },
+    
     // 是否给该视频点赞
     likeVideoOrNot: function () {
         const that = this;

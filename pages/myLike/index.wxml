@@ -1,0 +1,16 @@
+<view class='videoInfos'>
+
+  <block wx:for="{{videoList}}" wx:key="unique">  
+
+    <view class="videoInfo">
+      
+        <image src="{{item.PicUrl}}"  mode="aspectFill" class="videoImg" bindtap='showVideoInfo' data-arrindex='{{index}}'></image>
+     
+     
+        <text class="videoTitle">{{item.VideoTitle}}</text>
+     
+    </view>
+  
+  </block>
+
+</view>
